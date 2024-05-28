@@ -88,7 +88,6 @@ public class WhisperTimeSync {
 					String aPhrase = aWaiting.toString()
 							.replaceAll("&lt;", "<")
 							.replaceAll("&gt;", ">")
-							.replaceAll("\n", "<BR/>")
 							.trim()+"\n\n";
 					aOut.append(aPhrase);
 					if(_DEBUG_ALIGN) {
@@ -108,7 +107,6 @@ public class WhisperTimeSync {
 			String aPhrase = aWaiting.toString()
 					.replaceAll("&lt;", "<")
 					.replaceAll("&gt;", ">")
-					.replaceAll("\n", "<BR/>")
 					.trim()+"\n\n";
 			aOut.append(aPhrase);
 			if(_DEBUG_ALIGN) {

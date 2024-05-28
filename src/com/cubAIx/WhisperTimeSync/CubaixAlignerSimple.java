@@ -40,16 +40,20 @@ public class CubaixAlignerSimple {
 	}
 	
 	public Vector<Pair> align(TokenizedSent aTS1,TokenizedSent aTS2) throws Exception {
+		//Init
 		int[][] aChoices = new int[aTS1.tokens.size()+1][aTS2.tokens.size()+1];
 		double[][] aCosts = new double[aTS1.tokens.size()+1][aTS2.tokens.size()+1];
-		for(int x = 0;x<aTS1.tokens.size()+1;x++) {
+		aChoices[0][0] = 0;
+		aCosts[0][0] = 0;
+		for(int x = 1;x<aTS1.tokens.size()+1;x++) {
 			aChoices[x][0] = 1;//Left
-			aCosts[x][0] = x;
+			aCosts[x][0] = aCosts[x-1][0]+cost(aTS1.tokens.elementAt(x-1));
 		}
-		for(int y = 0;y<aTS2.tokens.size()+1;y++) {
+		for(int y = 1;y<aTS2.tokens.size()+1;y++) {
 			aChoices[0][y] = 2;//Up
-			aCosts[0][y] = y;
+			aCosts[0][y] = aCosts[0][y-1]+cost(aTS2.tokens.elementAt(y-1));
 		}
+		//Eval costs
 		for(int x = 1;x<aTS1.tokens.size()+1;x++) {
 			for(int y = 1;y<aTS2.tokens.size()+1;y++) {
 				double aCost = cost(aTS1.tokens.elementAt(x-1),aTS2.tokens.elementAt(y-1));
@@ -57,26 +61,26 @@ public class CubaixAlignerSimple {
 				double aCost1 = aCosts[x-1][y]+cost(aTS1.tokens.elementAt(x-1));
 				double aCost2 = aCosts[x][y-1]+cost(aTS2.tokens.elementAt(y-1));
 				if(aCost0 <= aCost1 && aCost0 <= aCost2) {
-					aChoices[x][y] = 0;
+					aChoices[x][y] = 0;//Match
 					aCosts[x][y] = aCost0;
 				}
 				else if(aCost1 < aCost2) {
-					aChoices[x][y] = 1;
+					aChoices[x][y] = 1;//Left
 					aCosts[x][y] = aCost1;
 				}
 				else {
-					aChoices[x][y] = 2;
+					aChoices[x][y] = 2;//Up
 					aCosts[x][y] = aCost2;
 				}
 			}
 		}
 
+		//Backprop
 		int x = aTS1.tokens.size();
 		int y = aTS2.tokens.size();
 		Vector<Pair> aPs = new Vector<Pair>();
 		while(x > 0 || y > 0) {
 			Pair aP = new Pair(); 
-			//		System.out.println("X="+x+" Y="+y+" Ch="+aChoices[x][y]+" Co="+aCosts[x][y]);
 			if(aChoices[x][y] == 0) {
 				aP.t1 = aTS1.tokens.elementAt(--x);
 				aP.t2 = aTS2.tokens.elementAt(--y);
